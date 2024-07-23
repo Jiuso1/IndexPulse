@@ -20,7 +20,8 @@ public class UserAccount {
 
     public UserAccount() {
         //Attributes are initialized with no content:
-        this.id = "";
+        this.id = UUID.randomUUID().toString();//UUID generates a random id.
+        //Attributes are initialized with empty values:
         this.email = "";
         this.password = "";
         this.firstName = "";

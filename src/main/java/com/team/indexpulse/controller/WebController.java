@@ -1,13 +1,14 @@
 package com.team.indexpulse.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestClient;
 import com.team.indexpulse.entity.UserAccount;
-
-import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -18,9 +19,7 @@ public class WebController {
     private final RestClient restClient = RestClient.create();
 
     @PostMapping("/user_accounts/register")
-    public String postUserAccountRegister(UserAccount userAccount) {
-        userAccount.setId(UUID.randomUUID().toString());//We generate the unique ID before posting it.
-
+    public String postUserAccountRegister(UserAccount userAccount, Model model) {
         //The POST request is sent to IndexPulseAPI.
         ResponseEntity<Void> response = restClient.post()
                 .uri("http://localhost:7634/user_accounts/register")
@@ -30,17 +29,18 @@ public class WebController {
                 .toBodilessEntity();
 
         if (response.getStatusCode().isError()) {
-            System.out.println("Error posting user account");
+            model.addAttribute("info", "Error registering user account");//WebController sends "Error posting..." message to template via info variable.
         } else {
-            System.out.println("User account posted");
+            model.addAttribute("info", "User account registered");//WebController sends "User account..." message to template via info variable.
         }
 
         return "test";
     }
 
     @PostMapping("/user_accounts/login")
-    public String postUserAccountLogin(UserAccount userAccount, Model model) {
-        Boolean login = false;
+    public String postUserAccountLogin(UserAccount userAccount, Model model, HttpServletRequest request) {
+        Boolean login = false;//Controls whether the user is logged in or not.
+
         //The POST request is sent to IndexPulseAPI.
         ResponseEntity<Boolean> response = restClient.post()
                 .uri("http://localhost:7634/user_accounts/login")
@@ -49,13 +49,23 @@ public class WebController {
                 .retrieve()
                 .toEntity(Boolean.class);
 
-        login = response.getBody();
+        login = response.getBody();//login values the Boolean returned to the previous request.
 
-        System.out.println("The value received is " + login);
+        request.getSession().setAttribute("login", login);//We pass to all templates a session variable called login, to control if the user is logged in.
 
-        model.addAttribute("login",login);//The controller sends login variable to the web template (test).
+        //We pass to "test" template a request variable called info, to show data about the login status:
+        if (!login) {//If login was not possible:
+            model.addAttribute("info", "Login error");
+        } else {//If login was successful:
+            model.addAttribute("info", "Logged in");
+        }
 
         return "test";
+    }
+
+    @GetMapping("/index")
+    public String getIndex(HttpServletRequest request) {
+        return "index";
     }
 
 }
