@@ -13,7 +13,7 @@
 </div>
 <div th:if="${session.id != null and #strings.length(session.id) > 0}">
     <!--If id session variable already exists and isn't empty, print div.-->
-    <p><a href="...">Change personal data</a></p>
+    <p><a href="/user_accounts/edit">Change personal data</a></p>
     <p><a href="/user_accounts/delete">Delete account</a></p>
 </div>
 <p th:text="${session.id}"></p>

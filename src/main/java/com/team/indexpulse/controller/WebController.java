@@ -20,7 +20,13 @@ public class WebController {
     @PostMapping("/user_accounts/register")
     public String postUserAccountRegister(UserAccount userAccount, Model model) {
         //The POST request is sent to IndexPulseAPI.
-        ResponseEntity<UserAccount> response = restClient.post().uri("http://localhost:7634/user_accounts/register").contentType(APPLICATION_JSON).body(userAccount).retrieve().toEntity(UserAccount.class);
+        ResponseEntity<UserAccount> response = restClient
+                .post()
+                .uri("http://localhost:7634/user_accounts/register")
+                .contentType(APPLICATION_JSON)
+                .body(userAccount)
+                .retrieve()
+                .toEntity(UserAccount.class);
 
         if (response.getStatusCode().isError()) {//If the POST request sending fails:
             model.addAttribute("info", "Error registering user account");//WebController sends "Error posting..." message to template via info variable.
@@ -38,7 +44,13 @@ public class WebController {
         String id = "";//ID of user account in case of successful login. It values "" otherwise.
 
         //The POST request is sent to IndexPulseAPI.
-        ResponseEntity<String> response = restClient.post().uri("http://localhost:7634/user_accounts/login").contentType(APPLICATION_JSON).body(userAccount).retrieve().toEntity(String.class);
+        ResponseEntity<String> response = restClient
+                .post()
+                .uri("http://localhost:7634/user_accounts/login")
+                .contentType(APPLICATION_JSON)
+                .body(userAccount)
+                .retrieve()
+                .toEntity(String.class);
 
         id = response.getBody();//login values the Boolean returned to the previous request.
 
@@ -64,15 +76,16 @@ public class WebController {
     @GetMapping("/user_accounts/delete")
     public String getUserAccountDelete(Model model, HttpServletRequest request) {
         String id = request.getSession().getAttribute("id").toString();//ID of the user account to be deleted. We get it from session variables.
-        String uri = null;//URI of the account to delete.
         if (id == null) {
             model.addAttribute("info", "Error deleting user account");//WebController sends "Error deleting..." message to template via info variable.
         } else if (id.isEmpty()) {
             model.addAttribute("info", "Error deleting user account");//WebController sends "Error deleting..." message to template via info variable.
         } else {
-            uri = String.format("http://localhost:7634/user_accounts/%s", id);//The id appears in the URL.
             //The DELETE request is sent to IndexPulseAPI.
-            ResponseEntity<Void> response = restClient.delete().uri(uri).retrieve().toBodilessEntity();
+            ResponseEntity<Void> response = restClient.delete()
+                    .uri("http://localhost:7634/user_accounts/{id}", id)
+                    .retrieve()
+                    .toBodilessEntity();
 
             if (response.getStatusCode().isError()) {
                 model.addAttribute("info", "Error deleting user account");//WebController sends "Error deleting..." message to template via info variable.
@@ -84,4 +97,56 @@ public class WebController {
 
         return "test";
     }
+
+    @GetMapping("/user_accounts/edit")
+    public String getUserAccountEdit(Model model, HttpServletRequest request) {
+        String id = request.getSession().getAttribute("id").toString();//ID of the user account to be edited. We get it from session variables.
+        UserAccount originalUserAccount = null;//Object with all original values of the user account.
+
+        //The GET request is sent to IndexPulseAPI.
+        UserAccount response = restClient.get()
+                .uri("http://localhost:7634/user_accounts/{id}", id)
+                .retrieve()
+                .body(UserAccount.class);
+
+        originalUserAccount = response;
+
+        if (originalUserAccount == null) {
+            model.addAttribute("info", "Error finding user account");//We pass to edit template error info.
+        } else {
+            model.addAttribute("originalUserAccount", originalUserAccount);//We pass to edit template originalUserAccount object.
+        }
+
+        return "edit";
+    }
+
+
+    @PostMapping("/user_accounts/edit")
+    public String postUserAccountEdit(UserAccount userAccount, Model model, HttpServletRequest request) {
+        String id = request.getSession().getAttribute("id").toString();//ID of the user account to be edited. We get it from session variables.
+        UserAccount modifiedUserAccount = null;//Object returned by IndexPulseAPI.
+
+        System.out.println("ID to modify: " + id);
+
+        //The PUT request is sent to IndexPulseAPI.
+        ResponseEntity<UserAccount> response = restClient
+                .put()
+                .uri("http://localhost:7634/user_accounts/{id}", id)
+                .contentType(APPLICATION_JSON)
+                .body(userAccount)
+                .retrieve()
+                .toEntity(UserAccount.class);
+
+        modifiedUserAccount = response.getBody();//We get the object returned by IndexPulseAPI.
+
+        if (response.getStatusCode().isError()) {
+            model.addAttribute("info", "Error modifying user account");//WebController sends "Error posting..." message to template via info variable.
+        } else if (modifiedUserAccount == null) {
+            model.addAttribute("info", "Error modifying user account");//WebController sends "Error posting..." message to template via info variable.
+        } else {
+            model.addAttribute("info", "User account modified");//WebController sends "User account..." message to template via info variable.
+        }
+        return "test";
+    }
+
 }
