@@ -6,10 +6,16 @@
 </head>
 <body>
 <h1>Index</h1>
-<div th:if="${session.login} == null or ${session.login} == false"><!--If login session variable doesn't exist yet or values false, print div.-->
-<p><a href="register.html">Register</a></p>
-<p><a href="login.html">Login</a></p>
+<div th:if="${session.id == null or #strings.length(session.id) == 0}">
+    <!--If id session variable doesn't exist yet or is empty, print div.-->
+    <p><a href="register.html">Register</a></p>
+    <p><a href="login.html">Login</a></p>
 </div>
-<p th:text="${session.login}"></p>
+<div th:if="${session.id != null and #strings.length(session.id) > 0}">
+    <!--If id session variable already exists and isn't empty, print div.-->
+    <p><a href="...">Change personal data</a></p>
+    <p><a href="/user_accounts/delete">Delete account</a></p>
+</div>
+<p th:text="${session.id}"></p>
 </body>
 </html>

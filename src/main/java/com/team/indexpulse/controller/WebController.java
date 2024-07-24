@@ -1,7 +1,6 @@
 package com.team.indexpulse.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -21,14 +20,11 @@ public class WebController {
     @PostMapping("/user_accounts/register")
     public String postUserAccountRegister(UserAccount userAccount, Model model) {
         //The POST request is sent to IndexPulseAPI.
-        ResponseEntity<Void> response = restClient.post()
-                .uri("http://localhost:7634/user_accounts/register")
-                .contentType(APPLICATION_JSON)
-                .body(userAccount)
-                .retrieve()
-                .toBodilessEntity();
+        ResponseEntity<UserAccount> response = restClient.post().uri("http://localhost:7634/user_accounts/register").contentType(APPLICATION_JSON).body(userAccount).retrieve().toEntity(UserAccount.class);
 
-        if (response.getStatusCode().isError()) {
+        if (response.getStatusCode().isError()) {//If the POST request sending fails:
+            model.addAttribute("info", "Error registering user account");//WebController sends "Error posting..." message to template via info variable.
+        } else if (response.getBody() == null) {//If the account returned by the API equals null:
             model.addAttribute("info", "Error registering user account");//WebController sends "Error posting..." message to template via info variable.
         } else {
             model.addAttribute("info", "User account registered");//WebController sends "User account..." message to template via info variable.
@@ -39,22 +35,19 @@ public class WebController {
 
     @PostMapping("/user_accounts/login")
     public String postUserAccountLogin(UserAccount userAccount, Model model, HttpServletRequest request) {
-        Boolean login = false;//Controls whether the user is logged in or not.
+        String id = "";//ID of user account in case of successful login. It values "" otherwise.
 
         //The POST request is sent to IndexPulseAPI.
-        ResponseEntity<Boolean> response = restClient.post()
-                .uri("http://localhost:7634/user_accounts/login")
-                .contentType(APPLICATION_JSON)
-                .body(userAccount)
-                .retrieve()
-                .toEntity(Boolean.class);
+        ResponseEntity<String> response = restClient.post().uri("http://localhost:7634/user_accounts/login").contentType(APPLICATION_JSON).body(userAccount).retrieve().toEntity(String.class);
 
-        login = response.getBody();//login values the Boolean returned to the previous request.
+        id = response.getBody();//login values the Boolean returned to the previous request.
 
-        request.getSession().setAttribute("login", login);//We pass to all templates a session variable called login, to control if the user is logged in.
+        request.getSession().setAttribute("id", id);//We pass to all templates a session variable called id, to know the user id.
 
         //We pass to "test" template a request variable called info, to show data about the login status:
-        if (!login) {//If login was not possible:
+        if (id == null) {
+            model.addAttribute("info", "Login error");
+        } else if (id.isEmpty()) {//If login was not possible:
             model.addAttribute("info", "Login error");
         } else {//If login was successful:
             model.addAttribute("info", "Logged in");
@@ -68,4 +61,27 @@ public class WebController {
         return "index";
     }
 
+    @GetMapping("/user_accounts/delete")
+    public String getUserAccountDelete(Model model, HttpServletRequest request) {
+        String id = request.getSession().getAttribute("id").toString();//ID of the user account to be deleted. We get it from session variables.
+        String uri = null;//URI of the account to delete.
+        if (id == null) {
+            model.addAttribute("info", "Error deleting user account");//WebController sends "Error deleting..." message to template via info variable.
+        } else if (id.isEmpty()) {
+            model.addAttribute("info", "Error deleting user account");//WebController sends "Error deleting..." message to template via info variable.
+        } else {
+            uri = String.format("http://localhost:7634/user_accounts/%s", id);//The id appears in the URL.
+            //The DELETE request is sent to IndexPulseAPI.
+            ResponseEntity<Void> response = restClient.delete().uri(uri).retrieve().toBodilessEntity();
+
+            if (response.getStatusCode().isError()) {
+                model.addAttribute("info", "Error deleting user account");//WebController sends "Error deleting..." message to template via info variable.
+            } else {
+                model.addAttribute("info", "Account deleted");//WebController sends "Error deleting..." message to template via info variable.
+                request.getSession().setAttribute("id", null);//As we've deleted the account, the user is logged out.
+            }
+        }
+
+        return "test";
+    }
 }
