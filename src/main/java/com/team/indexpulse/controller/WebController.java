@@ -120,13 +120,10 @@ public class WebController {
         return "edit";
     }
 
-
     @PostMapping("/user_accounts/edit")
     public String postUserAccountEdit(UserAccount userAccount, Model model, HttpServletRequest request) {
         String id = request.getSession().getAttribute("id").toString();//ID of the user account to be edited. We get it from session variables.
         UserAccount modifiedUserAccount = null;//Object returned by IndexPulseAPI.
-
-        System.out.println("ID to modify: " + id);
 
         //The PUT request is sent to IndexPulseAPI.
         ResponseEntity<UserAccount> response = restClient
@@ -145,6 +142,8 @@ public class WebController {
             model.addAttribute("info", "Error modifying user account");//WebController sends "Error posting..." message to template via info variable.
         } else {
             model.addAttribute("info", "User account modified");//WebController sends "User account..." message to template via info variable.
+            id = modifiedUserAccount.getId();//The ID is updated.
+            request.getSession().setAttribute("id", id);//We pass to all templates a session variable called id, to know the user id.
         }
         return "test";
     }
