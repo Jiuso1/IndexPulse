@@ -68,7 +68,7 @@ public class WebController {
         } else if (id.isEmpty()) {//If login was not possible:
             model.addAttribute("info", "Login error");
         } else {//If login was successful:
-            model.addAttribute("info", "Logged in");
+            model.addAttribute("info", "Logged in successfully");
         }
 
         return "test";
@@ -173,9 +173,10 @@ public class WebController {
     }
 
     @GetMapping("/user_accounts/logout")
-    public String getUserAccountLogout(HttpServletRequest request) {
+    public String getUserAccountLogout(Model model, HttpServletRequest request) {
         request.getSession().setAttribute("id", null);
-        return "index";
+        model.addAttribute("info", "Logged out successfully");
+        return "test";
     }
 
 }
