@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>IndexPulse</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<h1>Requests</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>URL</th>
+        <th>STATUS</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="request : ${requests}">
+        <td th:text="${request.id}"></td>
+        <td th:text="${request.url}"></td>
+        <td th:text="${request.status}"></td>
+    </tr>
+    </tbody>
+</table>
+<p><a href="/index">Index</a></p>
+</body>
+</html>

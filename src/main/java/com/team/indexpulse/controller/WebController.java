@@ -1,13 +1,19 @@
 package com.team.indexpulse.controller;
 
+import com.team.indexpulse.entity.IndexRequest;
+import jakarta.persistence.Index;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestClient;
 import com.team.indexpulse.entity.UserAccount;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -146,6 +152,30 @@ public class WebController {
             request.getSession().setAttribute("id", id);//We pass to all templates a session variable called id, to know the user id.
         }
         return "test";
+    }
+
+    @GetMapping("/index_requests/list")
+    public String getIndexRequestList(Model model) {
+        ArrayList<IndexRequest> requests = null;//List of all requests made by the logged-in user.
+        //Thanks to https://stackoverflow.com/questions/78731216/de-serialize-array-from-restclient-response
+        //To get an ArrayList of a JSON array, we declare a new ParameterizedTypeReference.
+        ArrayList<IndexRequest> response = restClient.get()
+                .uri("http://localhost:7634/index_requests")
+                .retrieve()
+                .body(new ParameterizedTypeReference<ArrayList<IndexRequest>>() {
+                });
+
+        requests = response;//Now requests save all.
+
+        model.addAttribute("requests", requests);
+
+        return "requests";
+    }
+
+    @GetMapping("/user_accounts/logout")
+    public String getUserAccountLogout(HttpServletRequest request) {
+        request.getSession().setAttribute("id", null);
+        return "index";
     }
 
 }
