@@ -15,7 +15,8 @@
         <tr>
             <th>ID</th>
             <th>URL</th>
-            <th>STATUS</th>
+            <th>Status</th>
+            <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -23,6 +24,7 @@
             <td th:text="${request.id}"></td>
             <td th:text="${request.url}"></td>
             <td th:text="${request.status}"></td>
+            <td><a th:href="@{'/index_requests/delete/' + ${request.id}}">Delete</a></td><!--https://stackoverflow.com/questions/33753975/thymeleaf-using-path-variables-to-thhref-->
         </tr>
         </tbody>
     </table>

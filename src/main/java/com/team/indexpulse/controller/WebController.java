@@ -8,6 +8,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestClient;
 
@@ -71,7 +72,7 @@ public class WebController {
     }
 
     @GetMapping("/index")
-    public String getIndex(HttpServletRequest request) {
+    public String getIndex() {
         return "index";//It redirects to index template.
     }
 
@@ -90,7 +91,6 @@ public class WebController {
                     .retrieve()
                     .toBodilessEntity();
 
-            model.addAttribute("info", "Error deleting user account");//WebController sends "Error deleting..." message to template via info variable.
             model.addAttribute("info", "Account deleted");//WebController sends "Error deleting..." message to template via info variable.
             request.getSession().setAttribute("id", null);//As we've deleted the account, the user is logged out.
         }
@@ -104,9 +104,9 @@ public class WebController {
         UserAccount response = null;//IndexAPI response.
 
         if (id == null) {
-            model.addAttribute("info", "Error getting user account id");//We pass to edit template error info.
+            model.addAttribute("info", "Error getting user account id");//We pass to template error info.
         } else if (id.isBlank()) {
-            model.addAttribute("info", "Error getting user account id");//We pass to edit template error info.
+            model.addAttribute("info", "Error getting user account id");//We pass to template error info.
         } else {
             //The GET request is sent to IndexPulseAPI.
             response = restClient.get()
@@ -117,9 +117,9 @@ public class WebController {
             originalUserAccount = response;
 
             if (originalUserAccount == null) {
-                model.addAttribute("info", "Error finding user account");//We pass to edit template error info.
+                model.addAttribute("info", "Error finding user account");//We pass to template error info.
             } else {
-                model.addAttribute("originalUserAccount", originalUserAccount);//We pass to edit template originalUserAccount object.
+                model.addAttribute("originalUserAccount", originalUserAccount);//We pass to template originalUserAccount object.
             }
         }
 
@@ -133,9 +133,9 @@ public class WebController {
         ResponseEntity<UserAccount> response = null;//IndexAPI response.
 
         if (id == null) {
-            model.addAttribute("info", "Error getting user account id");//We pass to edit template error info.
+            model.addAttribute("info", "Error getting user account id");//We pass to template error info.
         } else if (id.isBlank()) {
-            model.addAttribute("info", "Error getting user account id");//We pass to edit template error info.
+            model.addAttribute("info", "Error getting user account id");//We pass to template error info.
         } else {
             //The PUT request is sent to IndexPulseAPI.
             response = restClient
@@ -175,7 +175,7 @@ public class WebController {
             response = restClient.get()
                     .uri("http://localhost:7634/index_requests/{userAccountId}", userAccountId)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<ArrayList<IndexRequest>>() {
+                    .body(new ParameterizedTypeReference<>() {
                     });
 
             requests = response;//Now requests save all.
@@ -226,5 +226,25 @@ public class WebController {
         return "test";//It redirects to test template.
     }
 
+    @GetMapping("/index_requests/delete/{indexRequestId}")
+    public String getIndexRequestDelete(@PathVariable String indexRequestId, Model model, HttpServletRequest request) {
+        String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
+        ResponseEntity<Void> response = null;//IndexAPI response.
 
+        if (userAccountId == null) {
+            model.addAttribute("info", "Error deleting request");//WebController sends "Error deleting..." message to template via info variable.
+        } else if (userAccountId.isBlank()) {
+            model.addAttribute("info", "Error deleting request");//WebController sends "Error deleting..." message to template via info variable.
+        } else {//Missing: userAccountId.equals(request.getId())...
+            //The DELETE request is sent to IndexPulseAPI.
+            response = restClient.delete()
+                    .uri("http://localhost:7634/index_requests/{id}", userAccountId)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            model.addAttribute("info", "Request deleted");//WebController sends "Request..." message to template via info variable.
+        }
+
+        return "requests";//It redirects to requests template.
+    }
 }
