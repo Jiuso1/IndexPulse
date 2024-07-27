@@ -1,6 +1,7 @@
 package com.team.indexpulse.controller;
 
 import com.team.indexpulse.entity.IndexRequest;
+import com.team.indexpulse.entity.UserAccount;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -9,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestClient;
-import com.team.indexpulse.entity.UserAccount;
 
 import java.util.ArrayList;
 
@@ -40,7 +40,7 @@ public class WebController {
             model.addAttribute("info", "User account registered");//WebController sends "User account..." message to template via info variable.
         }
 
-        return "test";
+        return "test";//It redirects to test template.
     }
 
     @PostMapping("/user_accounts/login")
@@ -56,7 +56,7 @@ public class WebController {
                 .retrieve()
                 .toEntity(String.class);
 
-        id = response.getBody();//login values the Boolean returned to the previous request.
+        id = response.getBody();//id values the String returned to the previous request.
 
         request.getSession().setAttribute("id", id);//We pass to all templates a session variable called id, to know the user id.
 
@@ -69,12 +69,12 @@ public class WebController {
             model.addAttribute("info", "Logged in successfully");
         }
 
-        return "test";
+        return "test";//It redirects to test template.
     }
 
     @GetMapping("/index")
     public String getIndex(HttpServletRequest request) {
-        return "index";
+        return "index";//It redirects to index template.
     }
 
     @GetMapping("/user_accounts/delete")
@@ -99,7 +99,7 @@ public class WebController {
             }
         }
 
-        return "test";
+        return "test";//It redirects to test template.
     }
 
     @GetMapping("/user_accounts/edit")
@@ -121,7 +121,7 @@ public class WebController {
             model.addAttribute("originalUserAccount", originalUserAccount);//We pass to edit template originalUserAccount object.
         }
 
-        return "edit";
+        return "edit";//It redirects to edit template.
     }
 
     @PostMapping("/user_accounts/edit")
@@ -149,7 +149,7 @@ public class WebController {
             id = modifiedUserAccount.getId();//The ID is updated.
             request.getSession().setAttribute("id", id);//We pass to all templates a session variable called id, to know the user id.
         }
-        return "test";
+        return "test";//It redirects to test template.
     }
 
     @GetMapping("/index_requests/list")
@@ -173,18 +173,19 @@ public class WebController {
             model.addAttribute("requests", requests);
         }
 
-        return "requests";
+        return "requests";//It redirects to requests template.
     }
 
     @GetMapping("/user_accounts/logout")
     public String getUserAccountLogout(Model model, HttpServletRequest request) {
         request.getSession().setAttribute("id", null);
         model.addAttribute("info", "Logged out successfully");
-        return "test";
+        return "test";//It redirects to test template.
     }
 
     @PostMapping("/index_requests/register")
     public String postIndexRequestRegister(IndexRequest indexRequest, Model model, HttpServletRequest request) {
+        IndexRequest indexRequestReturned = null;//Index request returned by IndexPulseAPI. If IndexPulseAPI wasn't able to add the index request, this variable values null.
         String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
         indexRequest.setUserAccountId(userAccountId);//The request is produced by the user account with this id.
 
@@ -197,7 +198,16 @@ public class WebController {
                 .retrieve()
                 .toEntity(IndexRequest.class);
 
-        model.addAttribute("info", "Request added successfully");
-        return "test";
+        indexRequestReturned = response.getBody();//indexRequestReturned now values the variable returned by IndexPulseAPI.
+
+        if (indexRequestReturned == null) {//If IndexPulseAPI didn't add the index request:
+            model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
+        } else {
+            model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.
+        }
+
+        return "test";//It redirects to test template.
     }
+
+
 }
