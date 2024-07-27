@@ -6,22 +6,28 @@
 </head>
 <body>
 <h1>Requests</h1>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>URL</th>
-        <th>STATUS</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="request : ${requests}">
-        <td th:text="${request.id}"></td>
-        <td th:text="${request.url}"></td>
-        <td th:text="${request.status}"></td>
-    </tr>
-    </tbody>
-</table>
+<div th:if="${info != null}">
+    <p th:text="${info}"></p>
+</div>
+<div th:if="${info == null}">
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>URL</th>
+            <th>STATUS</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="request : ${requests}">
+            <td th:text="${request.id}"></td>
+            <td th:text="${request.url}"></td>
+            <td th:text="${request.status}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<p><a href="/addRequest.html">Add request</a></p><!--Always use slash, even for static content.-->
 <p><a href="/index">Index</a></p>
 </body>
 </html>

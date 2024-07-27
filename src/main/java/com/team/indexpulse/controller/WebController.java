@@ -1,7 +1,6 @@
 package com.team.indexpulse.controller;
 
 import com.team.indexpulse.entity.IndexRequest;
-import jakarta.persistence.Index;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestClient;
 import com.team.indexpulse.entity.UserAccount;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -155,19 +153,25 @@ public class WebController {
     }
 
     @GetMapping("/index_requests/list")
-    public String getIndexRequestList(Model model) {
+    public String getIndexRequestList(Model model, HttpServletRequest request) {
         ArrayList<IndexRequest> requests = null;//List of all requests made by the logged-in user.
-        //Thanks to https://stackoverflow.com/questions/78731216/de-serialize-array-from-restclient-response
-        //To get an ArrayList of a JSON array, we declare a new ParameterizedTypeReference.
-        ArrayList<IndexRequest> response = restClient.get()
-                .uri("http://localhost:7634/index_requests")
-                .retrieve()
-                .body(new ParameterizedTypeReference<ArrayList<IndexRequest>>() {
-                });
+        String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
 
-        requests = response;//Now requests save all.
+        if (userAccountId == null) {
+            model.addAttribute("info", "Error checking login session");
+        } else {
+            //Thanks to https://stackoverflow.com/questions/78731216/de-serialize-array-from-restclient-response
+            //To get an ArrayList of a JSON array, we declare a new ParameterizedTypeReference.
+            ArrayList<IndexRequest> response = restClient.get()
+                    .uri("http://localhost:7634/index_requests/{userAccountId}", userAccountId)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<ArrayList<IndexRequest>>() {
+                    });
 
-        model.addAttribute("requests", requests);
+            requests = response;//Now requests save all.
+
+            model.addAttribute("requests", requests);
+        }
 
         return "requests";
     }
@@ -179,4 +183,21 @@ public class WebController {
         return "test";
     }
 
+    @PostMapping("/index_requests/register")
+    public String postIndexRequestRegister(IndexRequest indexRequest, Model model, HttpServletRequest request) {
+        String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
+        indexRequest.setUserAccountId(userAccountId);//The request is produced by the user account with this id.
+
+        //The POST request is sent to IndexPulseAPI.
+        ResponseEntity<IndexRequest> response = restClient
+                .post()
+                .uri("http://localhost:7634/index_requests/register")
+                .contentType(APPLICATION_JSON)
+                .body(indexRequest)
+                .retrieve()
+                .toEntity(IndexRequest.class);
+
+        model.addAttribute("info", "Request added successfully");
+        return "test";
+    }
 }
