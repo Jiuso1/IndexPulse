@@ -60,9 +60,9 @@ public class WebController {
         request.getSession().setAttribute("id", id);//We pass to all templates a session variable called id, to know the user id.
 
         //We pass to "test" template a request variable called info, to show data about the login status:
-        if (id == null) {
+        if (id == null) {//If login was not possible:
             model.addAttribute("info", "Login error");
-        } else if (id.isEmpty()) {//If login was not possible:
+        } else if (id.isBlank()) {//If login was not possible:
             model.addAttribute("info", "Login error");
         } else {//If login was successful:
             model.addAttribute("info", "Logged in successfully");
@@ -229,20 +229,44 @@ public class WebController {
     @GetMapping("/index_requests/delete/{indexRequestId}")
     public String getIndexRequestDelete(@PathVariable String indexRequestId, Model model, HttpServletRequest request) {
         String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
-        ResponseEntity<Void> response = null;//IndexAPI response.
+        ArrayList<IndexRequest> getResponse = null;//IndexAPI GET response.
+        int i = 0;//While counter.
+        boolean found = false;//It values true when we've found that the index request to delete belongs to the user logged in.
+        IndexRequest indexRequestIterated = null;
+        ResponseEntity<Void> deleteResponse = null;//IndexAPI DELETE response.
 
         if (userAccountId == null) {
             model.addAttribute("info", "Error deleting request");//WebController sends "Error deleting..." message to template via info variable.
         } else if (userAccountId.isBlank()) {
             model.addAttribute("info", "Error deleting request");//WebController sends "Error deleting..." message to template via info variable.
-        } else {//Missing: userAccountId.equals(request.getId())...
-            //The DELETE request is sent to IndexPulseAPI.
-            response = restClient.delete()
-                    .uri("http://localhost:7634/index_requests/{id}", userAccountId)
+        } else {
+            //Thanks to https://stackoverflow.com/questions/78731216/de-serialize-array-from-restclient-response
+            //To get an ArrayList of a JSON array, we declare a new ParameterizedTypeReference.
+            getResponse = restClient.get()
+                    .uri("http://localhost:7634/index_requests/{userAccountId}", userAccountId)
                     .retrieve()
-                    .toBodilessEntity();
+                    .body(new ParameterizedTypeReference<>() {
+                    });
 
-            model.addAttribute("info", "Request deleted");//WebController sends "Request..." message to template via info variable.
+            while (!found && i < getResponse.size()) {//We search the ID to delete in all IDs that belong to the user logged in:
+                indexRequestIterated = getResponse.get(i);
+                if (indexRequestId.equals(indexRequestIterated.getId())) {
+                    found = true;
+                }
+                i++;
+            }
+
+            if (!found) {//If the ID doesn't belong to the user logged in:
+                model.addAttribute("info", "Error deleting request");//WebController sends "Error..." message to template via info variable.
+            } else {
+                //The DELETE request is sent to IndexPulseAPI.
+                deleteResponse = restClient.delete()
+                        .uri("http://localhost:7634/index_requests/{indexRequestId}", indexRequestId)
+                        .retrieve()
+                        .toBodilessEntity();
+
+                model.addAttribute("info", "Request deleted");//WebController sends "Request..." message to template via info variable.
+            }
         }
 
         return "requests";//It redirects to requests template.
