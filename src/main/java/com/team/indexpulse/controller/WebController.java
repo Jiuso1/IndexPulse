@@ -5,13 +5,20 @@ import com.team.indexpulse.entity.UserAccount;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -194,11 +201,12 @@ public class WebController {
     }
 
     @PostMapping("/index_requests/register")
-    public String postIndexRequestRegister(IndexRequest indexRequest, Model model, HttpServletRequest request) {
+    public String postIndexRequestRegister(IndexRequest indexRequest, Model model, HttpServletRequest request, MultipartFile file) {
         IndexRequest indexRequestReturned = null;//Index request returned by IndexPulseAPI. If IndexPulseAPI wasn't able to add the index request, this variable values null.
         String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
         indexRequest.setUserAccountId(userAccountId);//The request is produced by the user account with this id.
         ResponseEntity<IndexRequest> response = null;//IndexAPI response.
+        String UPLOAD_DIR = "C:/Users/jesus/Downloads/uploadExample";//File uploading directory.
 
         if (userAccountId == null) {
             model.addAttribute("info", "Login error");
@@ -215,6 +223,17 @@ public class WebController {
                     .toEntity(IndexRequest.class);
 
             indexRequestReturned = response.getBody();//indexRequestReturned now values the variable returned by IndexPulseAPI.
+
+            try {
+                // create a path from the file name
+                Path path = Paths.get(UPLOAD_DIR, file.getOriginalFilename());
+
+                // save the file to `UPLOAD_DIR`
+                // make sure you have permission to write
+                Files.write(path, file.getBytes());
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+            }
 
             if (indexRequestReturned == null) {//If IndexPulseAPI didn't add the index request:
                 model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
@@ -271,4 +290,5 @@ public class WebController {
 
         return "requests";//It redirects to requests template.
     }
+
 }

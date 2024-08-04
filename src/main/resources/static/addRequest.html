@@ -6,9 +6,12 @@
 </head>
 <body>
 <h1>Add request</h1>
-<form action="/index_requests/register" method="post">
+<!--Source: https://spring.io/guides/gs/uploading-files-->
+<form id="file-upload-form" action="/index_requests/register" method="post" enctype="multipart/form-data">
     <label for="url">URL:</label><br>
     <input type="url" id="url" name="url" required><br>
+    <label for="file-upload-input">Select file to upload</label>
+    <input type="file" id="file-upload-input" name="file">
     <input type="submit" value="Submit">
 </form>
 </body>
