@@ -16,6 +16,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -172,6 +173,7 @@ public class WebController {
         ArrayList<IndexRequest> requests = null;//List of all requests made by the logged-in user.
         String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
         ArrayList<IndexRequest> response = null;//IndexAPI response.
+
         if (userAccountId == null) {
             model.addAttribute("info", "Login error");
         } else if (userAccountId.isBlank()) {
@@ -207,6 +209,8 @@ public class WebController {
         indexRequest.setUserAccountId(userAccountId);//The request is produced by the user account with this id.
         ResponseEntity<IndexRequest> response = null;//IndexAPI response.
         String UPLOAD_DIR = "C:/Users/jesus/Downloads/uploadExample";//File uploading directory.
+        Path path = Paths.get(UPLOAD_DIR, file.getOriginalFilename());//Path created for the destination file.
+        boolean jsonReceived = false;//It values true when the file received is a JSON file.
 
         if (userAccountId == null) {
             model.addAttribute("info", "Login error");
@@ -224,21 +228,22 @@ public class WebController {
 
             indexRequestReturned = response.getBody();//indexRequestReturned now values the variable returned by IndexPulseAPI.
 
-            try {
-                // create a path from the file name
-                Path path = Paths.get(UPLOAD_DIR, file.getOriginalFilename());
-
-                // save the file to `UPLOAD_DIR`
-                // make sure you have permission to write
-                Files.write(path, file.getBytes());
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
-            }
-
-            if (indexRequestReturned == null) {//If IndexPulseAPI didn't add the index request:
+            if (!path.toString().endsWith(".json")) {//If the file received isn't a JSON file:
                 model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
             } else {
-                model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.
+                jsonReceived = true;//We've received a JSON file.
+            }
+
+            if (indexRequestReturned != null && jsonReceived) {//If we have received an index request object from POST and the JSON file:
+                try {
+                    System.out.println("File exists: " + Files.exists(path));
+                    Files.write(path, file.getBytes());//The file is saved to UPLOAD_DIR.
+                    model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.
+                } catch (IOException e) {//If there was an I/O problem:
+                    model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
+                }
+            } else {//If we haven't received all the index request components:
+                model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
             }
         }
 
