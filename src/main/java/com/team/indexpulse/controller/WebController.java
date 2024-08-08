@@ -5,16 +5,13 @@ import com.team.indexpulse.entity.UserAccount;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -236,7 +233,7 @@ public class WebController {
 
             if (indexRequestReturned != null && jsonReceived) {//If we have received an index request object from POST and the JSON file:
                 try {
-                    System.out.println("File exists: " + Files.exists(path));
+                    //System.out.println("File exists: " + Files.exists(path));
                     Files.write(path, file.getBytes());//The file is saved to UPLOAD_DIR.
                     model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.
                 } catch (IOException e) {//If there was an I/O problem:
