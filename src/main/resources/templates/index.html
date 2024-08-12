@@ -10,7 +10,7 @@
     <!--If id session variable doesn't exist yet or is empty, print div.-->
     <!--
     It's really important to type "/static.html" and not "static.html".
-    Without slash we would be using a relative path from the last request,
+    Without a slash we would be using a relative path from the last request,
     and we could get 404 error.
     -->
     <p><a href="/register.html">Register</a></p>
@@ -18,10 +18,11 @@
 </div>
 <div th:if="${session.id != null and #strings.length(session.id) > 0}">
     <!--If id session variable already exists and isn't empty, print div.-->
+    <p><a href="/index_requests/list">List requests</a></p>
+    <p><a href="/addJSON.html">Add a JSON file</a></p>
     <p><a href="/user_accounts/logout">Logout</a></p>
     <p><a href="/user_accounts/edit">Edit personal data</a></p>
     <p><a href="/user_accounts/delete">Delete account</a></p>
-    <p><a href="/index_requests/list">List requests</a></p>
 </div>
 <p th:text="${session.id}"></p>
 </body>

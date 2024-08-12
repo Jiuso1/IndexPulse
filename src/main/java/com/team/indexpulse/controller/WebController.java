@@ -133,19 +133,19 @@ public class WebController {
 
     @PostMapping("/user_accounts/edit")
     public String postUserAccountEdit(UserAccount userAccount, Model model, HttpServletRequest request) {
-        String id = request.getSession().getAttribute("id").toString();//ID of the user account to be edited. We get it from session variables.
+        String userAccountId = request.getSession().getAttribute("id").toString();//ID of the user account to be edited. We get it from session variables.
         UserAccount modifiedUserAccount = null;//Object returned by IndexPulseAPI.
         ResponseEntity<UserAccount> response = null;//IndexAPI response.
 
-        if (id == null) {
+        if (userAccountId == null) {
             model.addAttribute("info", "Error getting user account id");//We pass to template error info.
-        } else if (id.isBlank()) {
+        } else if (userAccountId.isBlank()) {
             model.addAttribute("info", "Error getting user account id");//We pass to template error info.
         } else {
             //The PUT request is sent to IndexPulseAPI.
             response = restClient
                     .put()
-                    .uri("http://localhost:7634/user_accounts/{id}", id)
+                    .uri("http://localhost:7634/user_accounts/{id}", userAccountId)
                     .contentType(APPLICATION_JSON)
                     .body(userAccount)
                     .retrieve()
@@ -157,8 +157,8 @@ public class WebController {
                 model.addAttribute("info", "Error modifying user account");//WebController sends "Error posting..." message to template via info variable.
             } else {
                 model.addAttribute("info", "User account modified");//WebController sends "User account..." message to template via info variable.
-                id = modifiedUserAccount.getId();//The ID is updated.
-                request.getSession().setAttribute("id", id);//We pass to all templates a session variable called id, to know the user id.
+                userAccountId = modifiedUserAccount.getId();//The ID is updated.
+                request.getSession().setAttribute("id", userAccountId);//We pass to all templates a session variable called id, to know the user id.
             }
         }
 
@@ -200,14 +200,11 @@ public class WebController {
     }
 
     @PostMapping("/index_requests/register")
-    public String postIndexRequestRegister(IndexRequest indexRequest, Model model, HttpServletRequest request, MultipartFile file) {
+    public String postIndexRequestRegister(IndexRequest indexRequest, Model model, HttpServletRequest request) {
         IndexRequest indexRequestReturned = null;//Index request returned by IndexPulseAPI. If IndexPulseAPI wasn't able to add the index request, this variable values null.
         String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
         indexRequest.setUserAccountId(userAccountId);//The request is produced by the user account with this id.
-        ResponseEntity<IndexRequest> response = null;//IndexAPI response.
-        String UPLOAD_DIR = "C:/Users/jesus/Downloads/uploadExample";//File uploading directory.
-        Path path = Paths.get(UPLOAD_DIR, file.getOriginalFilename());//Path created for the destination file.
-        boolean jsonReceived = false;//It values true when the file received is a JSON file.
+        ResponseEntity<IndexRequest> response = null;//IndexAPI response
 
         if (userAccountId == null) {
             model.addAttribute("info", "Login error");
@@ -225,21 +222,9 @@ public class WebController {
 
             indexRequestReturned = response.getBody();//indexRequestReturned now values the variable returned by IndexPulseAPI.
 
-            if (!path.toString().endsWith(".json")) {//If the file received isn't a JSON file:
-                model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
-            } else {
-                jsonReceived = true;//We've received a JSON file.
-            }
-
-            if (indexRequestReturned != null && jsonReceived) {//If we have received an index request object from POST and the JSON file:
-                try {
-                    //System.out.println("File exists: " + Files.exists(path));
-                    Files.write(path, file.getBytes());//The file is saved to UPLOAD_DIR.
-                    model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.
-                } catch (IOException e) {//If there was an I/O problem:
-                    model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
-                }
-            } else {//If we haven't received all the index request components:
+            if (indexRequestReturned != null) {//If we have received an index request object from POST:
+                model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.
+            } else {//If we haven't received the index request:
                 model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
             }
         }
@@ -291,6 +276,34 @@ public class WebController {
         }
 
         return "requests";//It redirects to requests template.
+    }
+
+    @PostMapping("/user_accounts/add_json")
+    public String postUserAccountsAddJson(Model model, HttpServletRequest request, MultipartFile file) {
+        String UPLOAD_DIR = "C:/Users/jesus/Downloads/uploadExample";//File uploading directory.
+        Path path = Paths.get(UPLOAD_DIR, file.getOriginalFilename());//Path created for the destination file.
+        boolean jsonReceived = false;//It values true when the file received is a JSON file.
+
+        if (!path.toString().endsWith(".json")) {//If the file received isn't a JSON file:
+            model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
+        } else {
+            jsonReceived = true;//We've received a JSON file.
+        }
+
+        if (jsonReceived) {//If we have received an index request object from POST and the JSON file:
+            try {
+                //System.out.println("File exists: " + Files.exists(path));
+                Files.write(path, file.getBytes());//The file is saved to UPLOAD_DIR.
+                model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.
+            } catch (IOException e) {//If there was an I/O problem:
+                model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
+            }
+        } else {//If we haven't received a JSON file:
+            model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.^M
+            model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
+        }
+
+        return "test";
     }
 
 }
