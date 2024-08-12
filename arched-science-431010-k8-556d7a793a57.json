@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "arched-science-431010-k8",
+  "private_key_id": "556d7a793a57f16b40ed514e2ce8d5865defb2a1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCmX68pjOaHFi8B\najjWFKwRiiqzJLArl2xsru+OyPmsNUz1L1BnUz7FRqzVtCXXd3bZ6hn7yoLC+F9I\nDp60p1FQancZlnWZEdZ6h949kPvLtm+gmxkFGg7+PyoODEprj4lAGiLpOueJ9qHO\n53En8qJhrrOez6gRbKVEieDnT18S4mbuKdAT7fpPsiTyc4kegGNusZ/idQmHJTAM\ntfMB5UQhaIjnol+sryL15r789V5GEQkaI6VQE+iDbLbUS5wm8AgwnVYPN0l8O19u\nZxGXynw/29/qlcj2hn/muU4WFwisaLw9UoTP8kJKmVbSJoF4RH3JHE2aSgVRBoKa\n7AJASwZvAgMBAAECggEAAowphvXY282rp5ZkS2bioZwffkG8DtbROrLNCT8rj4b7\naC+yx/o+1k94Owd4ot157OlIP5JAwVKDRvuuU27ScGxI6ZPjthXPVm35KbEsIdjn\nyapGTk0xWJRIBRIMG6yFef1MdozH2dV0cdIaafWtpdhCeNaOKMIkn7GKx4/wET5u\n48ox9juMKfSX+BY0oeLPiQBkm8brAB3778i5rFzH8JjIcEU4r1YtFH7g9uKEMkG9\nthFzyDO82NRsf11JwoMvRa90Ee7t0TEuNOblTnHzNu5a9dGctFDMiZ1bWLoMIxUo\nPbRhTVMspVVGoPkhK7TjRkplpGAblD/d6R7EDU+1/QKBgQDhZH20nzGz/Dazrj48\n5VjYPzWtlfqNf3Dm5kAI430q7wNkz7GuJxrvTQZCsTJ5djWrNNhIu3L1FtaS/OU5\ny39JigCWwesoHAhlmZbO44sjohq8g6pyIZ4QEykEItvuQV906SiEA1YcvMEP+gAQ\nCIMIH1LP1nNbR0QbC00bG9Ks5QKBgQC893lnfxCdMHeB7hCiTG35Lz9UmWLxoCJ6\nce5WAbf/VaurSWPivh7fr4Uq2XpsNEHtkdUoXy3B6opSUy576zUaxxS1w6rWud6w\nVuRcYgma+XKX0GM7zwol/rQkLEY8L8a9my4179Ib/FOA0VLsL1ODZLygIowOljWs\nD4MNY4rEwwKBgEVdUNZqe7hhcVBA2oSRLJN4eIOQeYhcZRmaWLCjmhzBa/D1fkAT\nZtWohbm2oMsClye2Xq2biphky+p2i/EKcIToRKAg08cHQYpLBz9qhaKUu9eySZ1Q\nPT3DN8c/FyIu2jq3mrFt+W1kpaHOFYDZrcGtKiYuYFgCCbKs+rDSEjcFAoGABQRd\nCM5q1oGO6rgzYNu+n7sNZ2WbJuclgzK7LTVmeTUBFc8hA8ggcbfrRTP4+B57EZ+p\nlSTRxjA/8+eZeFjKVCes+RZ01ragnvXvojRIJQEyda1mtRPOJSwaBEvYoYhzMl2I\nYI45edy9KtJj7TlkcjyedXH1Xf3G9waCaDyYVpkCgYB4G0V8Suevg6+0OCrPno6k\nbj5rgYrkefhN4fXAxP1TZj+1hXUMUug/pB/DLXidu+2ZTgJ6MV2cPHxzTvGJjWbd\nZSH7vbMXE8cer3sB8+w13eJIiolCzNtzR4dmq02oF8weh3eosgeJWbMHRauiPe0G\nwLdkVxPSP2zN3VjrbVCR2w==\n-----END PRIVATE KEY-----\n",
+  "client_email": "arched@arched-science-431010-k8.iam.gserviceaccount.com",
+  "client_id": "111605466414460107683",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/arched%40arched-science-431010-k8.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

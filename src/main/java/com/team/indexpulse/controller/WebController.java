@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,7 +50,7 @@ public class WebController {
 
     @PostMapping("/user_accounts/login")
     public String postUserAccountLogin(UserAccount userAccount, Model model, HttpServletRequest request) {
-        String id = "";//ID of user account in case of successful login. It values "" otherwise.
+        String userAccountId = "";//ID of user account in case of successful login. It values "" otherwise.
 
         //The POST request is sent to IndexPulseAPI.
         ResponseEntity<String> response = restClient
@@ -60,14 +61,14 @@ public class WebController {
                 .retrieve()
                 .toEntity(String.class);//IndexAPI response.
 
-        id = response.getBody();//id values the String returned to the previous request.
+        userAccountId = response.getBody();//userAcountId values the String returned to the previous request.
 
-        request.getSession().setAttribute("id", id);//We pass to all templates a session variable called id, to know the user id.
+        request.getSession().setAttribute("id", userAccountId);//We pass to all templates a session variable called id, to know the user id.
 
         //We pass to "test" template a request variable called info, to show data about the login status:
-        if (id == null) {//If login was not possible:
+        if (userAccountId == null) {//If login was not possible:
             model.addAttribute("info", "Login error");
-        } else if (id.isBlank()) {//If login was not possible:
+        } else if (userAccountId.isBlank()) {//If login was not possible:
             model.addAttribute("info", "Login error");
         } else {//If login was successful:
             model.addAttribute("info", "Logged in successfully");
@@ -280,27 +281,34 @@ public class WebController {
 
     @PostMapping("/user_accounts/add_json")
     public String postUserAccountsAddJson(Model model, HttpServletRequest request, MultipartFile file) {
-        String UPLOAD_DIR = "C:/Users/jesus/Downloads/uploadExample";//File uploading directory.
-        Path path = Paths.get(UPLOAD_DIR, file.getOriginalFilename());//Path created for the destination file.
+        String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
+        String uploadDirectory = "C:/Users/jesus/Downloads/uploadExample/" + userAccountId;//File uploading directory. The destination folder is called as the user account ID that uploaded the JSON file.
+        Path path = Paths.get(uploadDirectory, file.getOriginalFilename());//Path created for the destination file.
         boolean jsonReceived = false;//It values true when the file received is a JSON file.
+        File directory = new File(uploadDirectory);//directory where the file will be created.
 
-        if (!path.toString().endsWith(".json")) {//If the file received isn't a JSON file:
-            model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
+        if (userAccountId == null) {
+            model.addAttribute("info", "Error adding JSON");//WebController sends "Error deleting..." message to template via info variable.
+        } else if (userAccountId.isBlank()) {
+            model.addAttribute("info", "Error adding JSON");//WebController sends "Error deleting..." message to template via info variable.
         } else {
-            jsonReceived = true;//We've received a JSON file.
-        }
-
-        if (jsonReceived) {//If we have received an index request object from POST and the JSON file:
-            try {
-                //System.out.println("File exists: " + Files.exists(path));
-                Files.write(path, file.getBytes());//The file is saved to UPLOAD_DIR.
-                model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.
-            } catch (IOException e) {//If there was an I/O problem:
-                model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
+            if (!path.toString().endsWith(".json")) {//If the file received isn't a JSON file:
+                model.addAttribute("info", "Error adding JSON");//WebController sends "Error adding..." message to template via info variable.
+            } else {
+                jsonReceived = true;//We've received a JSON file.
             }
-        } else {//If we haven't received a JSON file:
-            model.addAttribute("info", "Request added successfully");//WebController sends "Request added..." message to template via info variable.^M
-            model.addAttribute("info", "Error adding the request");//WebController sends "Error adding..." message to template via info variable.
+            if (jsonReceived) {//If we have received an index request object from POST and the JSON file:
+                try {
+                    directory.mkdirs();//We create the directory. If it was created before, nothing is done. Source: https://stackoverflow.com/questions/3634853/how-to-create-a-directory-in-java
+                    Files.write(path, file.getBytes());//The file is saved to path.
+                    model.addAttribute("info", "JSON added successfully");//WebController sends "Request added..." message to template via info variable.
+                } catch (IOException e) {//If there was an I/O problem:
+                    model.addAttribute("info", "Error adding JSON");//WebController sends "Error adding..." message to template via info variable.
+                }
+            } else {//If we haven't received a JSON file:
+                model.addAttribute("info", "JSON added successfully");//WebController sends "Request added..." message to template via info variable.^M
+                model.addAttribute("info", "Error adding JSON");//WebController sends "Error adding..." message to template via info variable.
+            }
         }
 
         return "test";
