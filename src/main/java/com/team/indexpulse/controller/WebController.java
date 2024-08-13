@@ -284,8 +284,9 @@ public class WebController {
         String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
         String uploadDirectory = "C:/Users/jesus/Downloads/uploadExample/" + userAccountId;//File uploading directory. The destination folder is called as the user account ID that uploaded the JSON file.
         Path path = Paths.get(uploadDirectory, file.getOriginalFilename());//Path created for the destination file.
-        boolean jsonReceived = false;//It values true when the file received is a JSON file.
         File directory = new File(uploadDirectory);//directory where the file will be created.
+        File[] files = new File(uploadDirectory).listFiles();//Files array to get the current number of files in uploadDirectory. Source: https://stackoverflow.com/questions/31358160/how-to-get-number-of-files-in-a-directory-and-subdirectory-from-a-path-in-java
+        int numberOfFiles = 0;//Current number of files in uploadDirectory.
 
         if (userAccountId == null) {
             model.addAttribute("info", "Error adding JSON");//WebController sends "Error deleting..." message to template via info variable.
@@ -294,24 +295,25 @@ public class WebController {
         } else {
             if (!path.toString().endsWith(".json")) {//If the file received isn't a JSON file:
                 model.addAttribute("info", "Error adding JSON");//WebController sends "Error adding..." message to template via info variable.
-            } else {
-                jsonReceived = true;//We've received a JSON file.
-            }
-            if (jsonReceived) {//If we have received an index request object from POST and the JSON file:
+            } else {//If the file received is a JSON file:
                 try {
                     directory.mkdirs();//We create the directory. If it was created before, nothing is done. Source: https://stackoverflow.com/questions/3634853/how-to-create-a-directory-in-java
-                    Files.write(path, file.getBytes());//The file is saved to path.
-                    model.addAttribute("info", "JSON added successfully");//WebController sends "Request added..." message to template via info variable.
+                    if (files != null) {//If there're files in the directory:
+                        numberOfFiles = files.length;//Count the number of files.
+                    }
+                    if (numberOfFiles >= 10) {//If there are 10 or more files in the directory:
+                        model.addAttribute("info", "Error adding JSON");//WebController sends "Error adding..." message to template via info variable.
+                    } else {//If there are less than 10 files in the directory:
+                        Files.write(path, file.getBytes());//The file is saved to path.
+                        model.addAttribute("info", "JSON added successfully");//WebController sends "Request added..." message to template via info variable.
+                    }
                 } catch (IOException e) {//If there was an I/O problem:
                     model.addAttribute("info", "Error adding JSON");//WebController sends "Error adding..." message to template via info variable.
                 }
-            } else {//If we haven't received a JSON file:
-                model.addAttribute("info", "JSON added successfully");//WebController sends "Request added..." message to template via info variable.^M
-                model.addAttribute("info", "Error adding JSON");//WebController sends "Error adding..." message to template via info variable.
             }
         }
 
-        return "test";
+        return "test";//It redirects to test template.
     }
 
 }
