@@ -25,8 +25,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @RequiredArgsConstructor
 @org.springframework.stereotype.Controller
 public class WebController {
+    private final RestClient restClient;
 
-    private final RestClient restClient = RestClient.create();
+    public WebController() {
+        restClient = RestClient.create();
+    }
 
     @PostMapping("/user_accounts/register")
     public String postUserAccountRegister(UserAccount userAccount, Model model) {
