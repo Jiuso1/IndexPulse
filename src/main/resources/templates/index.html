@@ -18,27 +18,25 @@
                       d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2"/>
             </svg>
         </div>
-        <div class="col">
-            <div th:if="${session.id == null or #strings.length(session.id) == 0}">
-                <!--If id session variable doesn't exist yet or is empty, print div.-->
-                <!--
-                It's really important to type "/static.html" and not "static.html".
-                Without a slash we would be using a relative path from the last request,
-                and we could get 404 error.
-                -->
-                <a class="btn btn-light btn-lg" href="/register.html" role="button" >Register</a>
-                <a class="btn btn-primary btn-lg" href="/login.html" role="button">Login</a>
-            </div>
+        <div th:if="${session.id == null or #strings.length(session.id) == 0}" class="col">
+            <!--If id session variable doesn't exist yet or is empty, print div.-->
+            <!--
+            It's really important to type "/static.html" and not "static.html".
+            Without a slash we would be using a relative path from the last request,
+            and we could get 404 error.
+            -->
+            <a class="btn btn-light btn-lg" href="/register.html" role="button">Register</a>
+            <a class="btn btn-primary btn-lg" href="/login.html" role="button">Login</a>
+        </div>
+        <div th:if="${session.id != null and #strings.length(session.id) > 0}" class="col">
+            <!--If id session variable already exists and isn't empty, print div.-->
+            <a class="btn btn-primary btn-sm" href="/index_requests/list" role="button">List requests</a>
+            <a class="btn btn-secondary btn-sm" href="/addJSON.html" role="button">Add a JSON file</a>
+            <a class="btn btn-light btn-sm" href="/user_accounts/logout" role="button">Logout</a>
+            <a class="btn btn-info btn-sm" href="/user_accounts/edit" role="button">Edit personal data</a>
+            <a class="btn btn-danger btn-sm" href="/delete.html" role="button">Delete account</a>
         </div>
     </div>
-</div>
-<div th:if="${session.id != null and #strings.length(session.id) > 0}">
-    <!--If id session variable already exists and isn't empty, print div.-->
-    <p><a href="/index_requests/list">List requests</a></p>
-    <p><a href="/addJSON.html">Add a JSON file</a></p>
-    <p><a href="/user_accounts/logout">Logout</a></p>
-    <p><a href="/user_accounts/edit">Edit personal data</a></p>
-    <p><a href="/delete.html">Delete account</a></p>
 </div>
 <h2 class="display-5 text-center mt-2">
     Accelerate the <span class="fw-bold text-primary">pulse</span> of your websites
@@ -53,7 +51,6 @@
     <br>
     IndexPulse is the most private indexing platform on the internet.
 </p>
-<p th:text="${session.id}"></p>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
