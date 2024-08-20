@@ -279,7 +279,7 @@ public class WebController {
             }
         }
 
-        return "requests";//It redirects to requests template.
+        return "test";//It redirects to test template.
     }
 
     @PostMapping("/user_accounts/add_json")

@@ -8,7 +8,7 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-<div class="position-absolute top-50 start-50 translate-middle text-center">
+<div class="container mt-1 text-center">
     <h1 class="fs-1">IndexPulse</h1>
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-activity"
          viewBox="0 0 16 16">
@@ -20,7 +20,7 @@
         <p th:text="${info}"></p>
     </div>
     <div th:if="${info == null}">
-        <table>
+        <table class="table table-hover">
             <thead>
             <tr>
                 <th scope="col">ID</th>
