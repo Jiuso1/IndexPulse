@@ -25,10 +25,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @RequiredArgsConstructor
 @org.springframework.stereotype.Controller
 public class WebController {
+
     private final RestClient restClient;
+    final boolean isWindows;//isWindows values true when the service is run by a Windows OS.
 
     public WebController() {
         restClient = RestClient.create();
+        this.isWindows = System.getProperty("os.name").toLowerCase().contains("windows");//If the OS name contains windows, isWindows values true.
     }
 
     @PostMapping("/user_accounts/register")
@@ -285,7 +288,14 @@ public class WebController {
     @PostMapping("/user_accounts/add_json")
     public String postUserAccountsAddJson(Model model, HttpServletRequest request, MultipartFile file) {
         String userAccountId = request.getSession().getAttribute("id").toString();//We get the user account id from the logged user.
-        String uploadDirectory = "C:/Users/jesus/Downloads/uploadExample/" + userAccountId;//File uploading directory. The destination folder is called as the user account ID that uploaded the JSON file.
+        String uploadDirectory = "";//File uploading directory. The destination folder is called as the user account ID that uploaded the JSON file.
+
+        if (!isWindows) {//If OS isn't Windows:
+            uploadDirectory = "/services/data/uploadExample";
+        } else {//If OS is Windows:
+            uploadDirectory = "C:/Users/jesus/Downloads/uploadExample/" + userAccountId;
+        }
+
         Path path = Paths.get(uploadDirectory, file.getOriginalFilename());//Path created for the destination file.
         File directory = new File(uploadDirectory);//directory where the file will be created.
         File[] files = new File(uploadDirectory).listFiles();//Files array to get the current number of files in uploadDirectory. Source: https://stackoverflow.com/questions/31358160/how-to-get-number-of-files-in-a-directory-and-subdirectory-from-a-path-in-java
