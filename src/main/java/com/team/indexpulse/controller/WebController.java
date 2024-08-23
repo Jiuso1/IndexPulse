@@ -291,7 +291,7 @@ public class WebController {
         String uploadDirectory = "";//File uploading directory. The destination folder is called as the user account ID that uploaded the JSON file.
 
         if (!isWindows) {//If OS isn't Windows:
-            uploadDirectory = "/services/data/uploadExample";
+            uploadDirectory = "~/services/data/uploadExample/" + userAccountId;
         } else {//If OS is Windows:
             uploadDirectory = "C:/Users/jesus/Downloads/uploadExample/" + userAccountId;
         }
